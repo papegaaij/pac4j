@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import static java.util.Collections.singletonList;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +59,7 @@ public class OidcRedirectActionBuilder implements RedirectActionBuilder {
         }
 
         // add custom values
-		configuration.getCustomParams().forEach((k, v) -> this.authParams.put(k, singletonList(v)));
+        this.authParams.putAll(configuration.getCustomParams());
         // client id
         this.authParams.put(OidcConfiguration.CLIENT_ID, singletonList(configuration.getClientId()));
     }

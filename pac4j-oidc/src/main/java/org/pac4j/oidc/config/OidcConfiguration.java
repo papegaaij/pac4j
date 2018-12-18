@@ -65,7 +65,7 @@ public class OidcConfiguration extends InitializableObject {
     private String scope;
 
     /* Map containing user defined parameters */
-    private Map<String, String> customParams = new HashMap<>();
+    private Map<String, List<String>> customParams = new HashMap<>();
 
     /* client authentication method used at token End Point */
     private ClientAuthenticationMethod clientAuthenticationMethod;
@@ -186,22 +186,32 @@ public class OidcConfiguration extends InitializableObject {
         this.scope = scope;
     }
 
-    public Map<String, String> getCustomParams() {
+    public Map<String, List<String>> getCustomParams() {
         return customParams;
     }
 
     public String getCustomParam(String name) {
+        return customParams.get(name).get(0);
+    }
+
+    public List<String> getCustomParams(String name) {
         return customParams.get(name);
     }
 
-    public void setCustomParams(final Map<String, String> customParams) {
+    public void setCustomParams(final Map<String, List<String>> customParams) {
         CommonHelper.assertNotNull("customParams", customParams);
         this.customParams = customParams;
     }
 
     public void addCustomParam(final String key, final String value) {
-        this.customParams.put(key, value);
+    	List<String> valueList = new ArrayList<>();
+    	valueList.add(value);
+        addCustomParm(key, valueList);
     }
+
+	public void addCustomParm(final String key, final List<String> valueList) {
+		this.customParams.put(key, valueList);
+	}
 
     public ClientAuthenticationMethod getClientAuthenticationMethod() {
         return clientAuthenticationMethod;
