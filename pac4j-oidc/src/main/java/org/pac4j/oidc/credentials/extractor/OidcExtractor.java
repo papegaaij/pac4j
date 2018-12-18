@@ -1,11 +1,12 @@
 package org.pac4j.oidc.credentials.extractor;
 
-import com.nimbusds.jwt.JWT;
-import com.nimbusds.oauth2.sdk.AuthorizationCode;
-import com.nimbusds.oauth2.sdk.ParseException;
-import com.nimbusds.oauth2.sdk.id.State;
-import com.nimbusds.oauth2.sdk.token.AccessToken;
-import com.nimbusds.openid.connect.sdk.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.pac4j.core.context.WebContext;
 import org.pac4j.core.credentials.extractor.CredentialsExtractor;
 import org.pac4j.core.exception.TechnicalException;
@@ -16,10 +17,15 @@ import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.id.State;
+import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationErrorResponse;
+import com.nimbusds.openid.connect.sdk.AuthenticationResponse;
+import com.nimbusds.openid.connect.sdk.AuthenticationResponseParser;
+import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 
 /**
  * Extract the authorization code on the callback.
@@ -45,7 +51,7 @@ public class OidcExtractor implements CredentialsExtractor<OidcCredentials> {
     @Override
     public OidcCredentials extract(final WebContext context) {
         final String computedCallbackUrl = client.computeFinalCallbackUrl(context);
-        final Map<String, String> parameters = retrieveParameters(context);
+        final Map<String, List<String>> parameters = retrieveParameters(context);
         AuthenticationResponse response;
         try {
             response = AuthenticationResponseParser.parse(new URI(computedCallbackUrl), parameters);
@@ -91,11 +97,11 @@ public class OidcExtractor implements CredentialsExtractor<OidcCredentials> {
         return credentials;
     }
 
-    protected Map<String, String> retrieveParameters(final WebContext context) {
+    protected Map<String, List<String>> retrieveParameters(final WebContext context) {
         final Map<String, String[]> requestParameters = context.getRequestParameters();
-        Map<String, String> map = new HashMap<>();
+        Map<String, List<String>> map = new HashMap<>();
         for (final Map.Entry<String, String[]> entry : requestParameters.entrySet()) {
-            map.put(entry.getKey(), entry.getValue()[0]);
+            map.put(entry.getKey(), Arrays.asList(entry.getValue()));
         }
         return map;
     }
